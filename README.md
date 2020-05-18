@@ -1,6 +1,6 @@
 # hephaestus
 
-FIXME: description
+The Phoenix Rises Again
 
 ## Installation
 
