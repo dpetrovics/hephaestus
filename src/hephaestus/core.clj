@@ -1,7 +1,7 @@
 (ns hephaestus.core
-  (:require [clojure.spec.alpha :as s]
-            [clojure.core.matrix :as m]
-            [complex.core :as c]))
+  (:require [clojure.core.matrix :as m]
+            [complex.core :as c]
+            [schema.core :as s]))
 
 ;; ## Concepts:
 
@@ -66,7 +66,9 @@
 ;; The particle state is represented as a 3-Vector with x, y, z
 ;; coordinates. We do it this way because its easier to do the dot
 ;; product.
-(s/def ::state any?)
+(def State {:x s/Num
+            :y s/Num
+            :z s/Num})
 
 ;; Orientation of the apparatus represented as a theta and phi, to
 ;; represent the unit vector in 3D space.
@@ -75,62 +77,64 @@
 ;; pointing towards the North Pole.
 ;; Phi is the angle, from center of sphere sweeping around the
 ;; equator, like lines of longitude on the Earth.
-(s/def ::orientation any?)
+(def Orientation {:theta s/Num
+                  :phi s/Num})
 
 ;; Measurement value is +1 or -1.
-(s/def ::measurement-value any?)
+(def Result (s/enum 1 -1))
 
 
 ;; ## Helpers
 
-(defn flip
+(s/defn flip :- Orientation
   "Return an orientation that is 180deg to the given orientation. (Parallel, but opp direction)"
-  [{:keys [x y z]}]
+  [{:keys [x y z]} :- Orientation]
   {:x (- x)
    :y (- y)
    :z (- z)})
 
-
-(defn spherical->cart
+(s/defn spherical->cart :- State
   "Converts given spherical coords to 3D-Cartesian."
-  [{:keys [theta phi]}]
+  [{:keys [theta phi]} :- Orientation]
   {:x (* (Math/sin theta)
          (Math/cos phi))
    :y (* (Math/sin theta)
          (Math/sin phi))
    :z (Math/cos theta)})
 
-(defn dot-prod
+(s/defn dot-prod :- s/Num
   "Takes the dot product of two 3-Vectors."
-  [vec-a vec-b]
+  [vec-a :- State
+   vec-b :- State]
   (+ (* (:x vec-a) (:x vec-b))
      (* (:y vec-a) (:y vec-b))
      (* (:z vec-a) (:z vec-b))))
 
-(defn ev->prob
+(s/defn ev->prob :- s/Num
   "Takes an expected value (between -1 and 1), and converts it to a
   probability of getting a +1."
-  [ev]
+  [ev :- s/Num]
   (/ (+ ev 1) 2))
 
 
 ;; ## Quantum API:
 
-(defn prepare
+(s/defn prepare :- State
   "Specify an orientation for the apparatus and the value you measured,
   and we'll return the prepared state."
-  [{:keys [theta phi] :as orientation}
-   measured-value]
+  [{:keys [theta phi] :as orientation} :- Orientation
+   measured-value :- Result]
   (if (= measured-value -1)
     (prepare (flip orientation) 1)
     (spherical->cart orientation)))
 
-(defn measure
+(s/defn measure :- (s/pair State "The new, post-measurement vector state."
+                           Result "The obtained measurment result.")
   "Perform a measurement of the state via the apparatus in the given
   orientation, and we'll return a new state and the measurement
   value."
-  [state
-   orientation]
+  [state :- State
+   orientation :- Orientation]
   ;; Let the angle gamma represent the angle between the state and the
   ;; apparatus orientation.
 

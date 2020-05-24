@@ -5,6 +5,7 @@
   :dependencies [[org.clojure/clojure "1.10.1"]
                  [net.littleredcomputer/sicmutils "0.12.1"]
                  [net.mikera/core.matrix "0.62.0"]
+                 [prismatic/schema "1.1.12"]
                  [uncomplicate/neanderthal "0.31.0"]
                  [complex "0.1.12"]]
   :main ^:skip-aot hephaestus.core
