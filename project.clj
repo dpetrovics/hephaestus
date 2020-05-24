@@ -11,4 +11,5 @@
   :main ^:skip-aot hephaestus.core
   :jvm-opts ^:replace [#_"--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED"]
   :target-path "target/%s"
-  :profiles {:uberjar {:aot :all}})
+  :profiles {:uberjar {:aot :all}
+             :dev {:dependencies [[org.clojure/test.check "1.0.0"]]}})

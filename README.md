@@ -11,6 +11,14 @@ now... just raw, unmediated knowledge, available for brain-mainlining.
 
 We're developing in Emacs, mostly, using the repl. So old school.
 
+## Testing
+
+Run the tests with Leiningen:
+
+```bash
+lein test
+```
+
 # Rough Plan
 
 The plan is to follow Susskind's [Quantum Mechanics: The Theoretical
