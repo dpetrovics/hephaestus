@@ -63,12 +63,19 @@
 
 ;; ## Schemas:
 
+(def Cartesian3DUnitVector
+  {:x s/Num
+   :y s/Num
+   :z s/Num})
+
+(def SphericalUnitVector
+  {:theta s/Num
+   :phi s/Num})
+
 ;; The particle state is represented as a 3-Vector with x, y, z
 ;; coordinates. We do it this way because its easier to do the dot
 ;; product.
-(def State {:x s/Num
-            :y s/Num
-            :z s/Num})
+(def State Cartesian3DUnitVector)
 
 ;; Orientation of the apparatus represented as a theta and phi, to
 ;; represent the unit vector in 3D space.
@@ -77,8 +84,7 @@
 ;; pointing towards the North Pole.
 ;; Phi is the angle, from center of sphere sweeping around the
 ;; equator, like lines of longitude on the Earth.
-(def Orientation {:theta s/Num
-                  :phi s/Num})
+(def Orientation SphericalUnitVector)
 
 ;; Measurement value is +1 or -1.
 (def Result (s/enum 1 -1))
