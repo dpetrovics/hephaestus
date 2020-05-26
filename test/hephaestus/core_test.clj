@@ -23,8 +23,8 @@
                  [new-state spin] (c/measure prepped orientation)]
              (and (= spin result)))))
 
-;; After measuring, the new state matches the orientation of the measurement
-;; apparatus.
+;; After measuring, the new state is parallel to the orientation of the measurement
+;; apparatus (either same, or 180 degrees apart).
 (defspec measurement-collapses-state-to-apparatus-orientation
   100
   (for-all [orientation hg/orientation
