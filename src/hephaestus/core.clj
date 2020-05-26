@@ -122,17 +122,18 @@
   [ev :- s/Num]
   (/ (+ ev 1) 2))
 
-
 ;; ## Quantum API:
 
 (s/defn prepare :- State
   "Specify an orientation for the apparatus and the value you measured,
   and we'll return the prepared state."
-  [{:keys [theta phi] :as orientation} :- Orientation
-   measured-value :- Result]
-  (if (= measured-value -1)
-    (prepare (flip orientation) 1)
-    (spherical->cart orientation)))
+  ([orientation :- Orientation] (prepare orientation 1))
+  ([{:keys [theta phi] :as orientation} :- Orientation
+    measured-value :- Result]
+   (let [cartesian (spherical->cart orientation)]
+     (if (= measured-value -1)
+       (flip cartesian)
+       cartesian))))
 
 (s/defn measure :- (s/pair State "The new, post-measurement vector state."
                            Result "The obtained measurment result.")
