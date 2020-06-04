@@ -200,21 +200,46 @@
    :y (to-rotator sigma_x)
    :z (to-rotator sigma_x)})
 
-(s/defn spherical->basis
-  "Returns the basis vectors for measurement of 1, -1.
+(defn complex-mmul
+  "Multiplies two complex matrices, using the fact that
 
-  TODO: this doesn't work yet, because mmul doesn't support complex matrix
-  multiplication. We need to implement the matrix multiplication protocol, using
-  the fact that
+  \(AB = (A_r + A_i I)(B_r + B_i I) = (A_rB_r - A_iB_i) + (A_rB_i + A_iB_r)I \)
 
-    AB = (A_r + A_i I)(B_r + B_i I) = (A_rB_r - A_iB_i) + (A_rB_i + A_iB_r)I
+  TODO we should move this into clojure.core.matrix.complex, so that mmul will
+  work with complex matrix multiplication. We could also make sure to coerce the
+  arguments into complex arrays before calling this, and fall back to normal
+  matrix multiplication on either side if we get a real matrix.
+  "
+  [A B]
+  (mc/complex-array
+   (m/add-scaled (m/mmul (.real A) (.real B))
+                 -1 (m/mmul (.imag A) (.imag B)))
+   (m/add (m/mmul (.real A) (.imag B))
+          (m/mmul (.imag A) (.real B)))))
 
-  Then this should work.
-"
+(s/defn spherical->basis-via-rotation
+  "Returns the basis vectors for measurement of 1, -1 in the direction of the
+  supplied orientation.
+
+  Internally, this function works by rotating the measurement basis for +z
+
+  - by $\theta$ around the y-axis, then
+  - by $\phi$ around the z-axis."
   [{:keys [theta phi]} :- Orientation]
   (m/transpose
-   (m/mmul ((:z rotator) phi)
-           ((:y rotator) theta))))
+   (complex-mmul
+    ((:z rotator) phi)
+    ((:y rotator) theta))))
+
+(s/defn spherical->basis-direct
+  "Returns the basis vectors for measurement of 1, -1 in the direction of the
+  supplied orientation.
+
+  TODO - implement with Dave."
+  [{:keys [theta phi]} :- Orientation]
+  )
+
+
 
 ;; ## Library Docs:
 
