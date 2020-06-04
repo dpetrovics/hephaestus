@@ -189,7 +189,8 @@
   [pauli]
   (fn [theta]
     (let [half-angle (/ theta 2)
-          id (mc/complex (m/identity-matrix 2))]
+          id (mc/complex-array
+              (m/identity-matrix 2))]
       (m/scale-add
        id
        (c/cos half-angle)
@@ -219,10 +220,7 @@
   supplied orientation.
 
   TODO - implement with Dave."
-  [{:keys [theta phi]} :- Orientation]
-  )
-
-
+  [{:keys [theta phi]} :- Orientation])
 
 ;; ## Library Docs:
 
@@ -238,12 +236,3 @@
 ;; To actually use it, we'll need to get the Intel Math Kernel library
 ;; installed, as described here:
 ;; https://neanderthal.uncomplicate.org/articles/getting_started.html#installation
-
-(def idnty
-  (mc/complex
-   [[1 0]
-    [0 1]]))
-
-(defn conj-transpose
-  [mtx]
-  (m/emap c/conjugate (m/transpose mtx)))
