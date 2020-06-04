@@ -7,7 +7,13 @@
                  [net.mikera/core.matrix "0.62.0"]
                  [prismatic/schema "1.1.12"]
                  [uncomplicate/neanderthal "0.31.0"]
-                 [complex "0.1.12"]]
+                 [complex "0.1.12"]
+
+                 ;; Dependencies for clojure.core.matrix.complex.
+                 [org.clojure/clojure "1.8.0"]
+                 [net.mikera/clojure-utils "0.8.0"]
+                 [org.clojure/math.numeric-tower "0.0.4"]
+                 ]
   :main ^:skip-aot hephaestus.core
   :jvm-opts ^:replace [#_"--add-opens=java.base/jdk.internal.ref=ALL-UNNAMED"]
   :target-path "target/%s"

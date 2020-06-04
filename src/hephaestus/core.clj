@@ -1,7 +1,10 @@
 (ns hephaestus.core
   (:require [clojure.core.matrix :as m]
+            [clojure.core.matrix.protocols :as mp]
+            [clojure.core.matrix.complex :as mc]
             [complex.core :as c]
-            [schema.core :as s]))
+            [schema.core :as s])
+  (:import [org.apache.commons.math3.complex Complex]))
 
 ;; ## Concepts:
 
@@ -158,6 +161,60 @@
       [cart-orientation 1]
       [(flip cart-orientation) -1])))
 
+;; Pauli matrices
+
+(def I Complex/I)
+
+(def sigma_x
+  (mc/complex-array
+   [[0 1]
+    [1 0]]))
+
+(def sigma_y
+  (mc/complex-array
+   [[0 0]
+    [0 0]]
+   [[0 -1]
+    [1 0]]))
+
+(def sigma_z
+  (mc/complex-array
+   [[1 0]
+    [0 -1]]))
+
+(defn to-rotator
+  "Returns a rotation matrix that rotates a complex basis around the basis of the
+  pauli vector."
+  [pauli]
+  (fn [theta]
+    (let [half-angle (/ theta 2)
+          id (mc/complex (m/identity-matrix 2))]
+      (m/scale-add
+       id
+       (c/cos half-angle)
+       pauli
+       (c/* I (c/sin half-angle))))))
+
+(def rotator
+  {:x (to-rotator sigma_x)
+   :y (to-rotator sigma_x)
+   :z (to-rotator sigma_x)})
+
+(s/defn spherical->basis
+  "Returns the basis vectors for measurement of 1, -1.
+
+  TODO: this doesn't work yet, because mmul doesn't support complex matrix
+  multiplication. We need to implement the matrix multiplication protocol, using
+  the fact that
+
+    AB = (A_r + A_i I)(B_r + B_i I) = (A_rB_r - A_iB_i) + (A_rB_i + A_iB_r)I
+
+  Then this should work.
+"
+  [{:keys [theta phi]} :- Orientation]
+  (m/transpose
+   (m/mmul ((:z rotator) phi)
+           ((:y rotator) theta))))
 
 ;; ## Library Docs:
 
@@ -175,8 +232,9 @@
 ;; https://neanderthal.uncomplicate.org/articles/getting_started.html#installation
 
 (def idnty
-  [[(c/complex 1) (c/complex 0)]
-   [(c/complex 0) (c/complex 1)]])
+  (mc/complex
+   [[1 0]
+    [0 1]]))
 
 (defn conj-transpose
   [mtx]
