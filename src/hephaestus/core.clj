@@ -203,7 +203,7 @@
 (defn complex-mmul
   "Multiplies two complex matrices, using the fact that
 
-  \(AB = (A_r + A_i I)(B_r + B_i I) = (A_rB_r - A_iB_i) + (A_rB_i + A_iB_r)I \)
+  \\(AB = (A_r + A_i I)(B_r + B_i I) = (A_rB_r - A_iB_i) + (A_rB_i + A_iB_r)I \\)
 
   TODO we should move this into clojure.core.matrix.complex, so that mmul will
   work with complex matrix multiplication. We could also make sure to coerce the
@@ -223,8 +223,8 @@
 
   Internally, this function works by rotating the measurement basis for +z
 
-  - by $\theta$ around the y-axis, then
-  - by $\phi$ around the z-axis."
+  - by $\\theta$ around the y-axis, then
+  - by $\\phi$ around the z-axis."
   [{:keys [theta phi]} :- Orientation]
   (m/transpose
    (complex-mmul
