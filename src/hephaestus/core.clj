@@ -1,7 +1,10 @@
 (ns hephaestus.core
   (:require [clojure.core.matrix :as m]
+            [clojure.core.matrix.protocols :as mp]
+            [clojure.core.matrix.complex :as mc]
             [complex.core :as c]
-            [schema.core :as s]))
+            [schema.core :as s])
+  (:import [org.apache.commons.math3.complex Complex]))
 
 ;; ## Concepts:
 
@@ -159,6 +162,65 @@
       [cart-orientation 1]
       [(flip cart-orientation) -1])))
 
+;; Pauli matrices
+
+(def I Complex/I)
+
+(def sigma_x
+  (mc/complex-array
+   [[0 1]
+    [1 0]]))
+
+(def sigma_y
+  (mc/complex-array
+   [[0 0]
+    [0 0]]
+   [[0 -1]
+    [1 0]]))
+
+(def sigma_z
+  (mc/complex-array
+   [[1 0]
+    [0 -1]]))
+
+(defn to-rotator
+  "Returns a rotation matrix that rotates a complex basis around the basis of the
+  pauli vector."
+  [pauli]
+  (fn [theta]
+    (let [half-angle (/ theta 2)
+          id (mc/complex-array
+              (m/identity-matrix 2))]
+      (m/scale-add
+       id
+       (c/cos half-angle)
+       pauli
+       (c/* I (c/sin half-angle))))))
+
+(def rotator
+  {:x (to-rotator sigma_x)
+   :y (to-rotator sigma_x)
+   :z (to-rotator sigma_x)})
+
+(s/defn spherical->basis-via-rotation
+  "Returns the basis vectors for measurement of 1, -1 in the direction of the
+  supplied orientation.
+
+  Internally, this function works by rotating the measurement basis for +z
+
+  - by $\\theta$ around the y-axis, then
+  - by $\\phi$ around the z-axis."
+  [{:keys [theta phi]} :- Orientation]
+  (m/mmul
+   ((:z rotator) phi)
+   ((:y rotator) theta)))
+
+(s/defn spherical->basis-direct
+  "Returns the basis vectors for measurement of 1, -1 in the direction of the
+  supplied orientation.
+
+  TODO - implement with Dave."
+  [{:keys [theta phi]} :- Orientation])
 
 ;; ## Library Docs:
 
@@ -174,11 +236,3 @@
 ;; To actually use it, we'll need to get the Intel Math Kernel library
 ;; installed, as described here:
 ;; https://neanderthal.uncomplicate.org/articles/getting_started.html#installation
-
-(def idnty
-  [[(c/complex 1) (c/complex 0)]
-   [(c/complex 0) (c/complex 1)]])
-
-(defn conj-transpose
-  [mtx]
-  (m/emap c/conjugate (m/transpose mtx)))
