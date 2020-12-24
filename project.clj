@@ -10,7 +10,6 @@
                  [complex "0.1.12"]
 
                  ;; Dependencies for clojure.core.matrix.complex.
-                 [org.clojure/clojure "1.8.0"]
                  [net.mikera/clojure-utils "0.8.0"]
                  [org.clojure/math.numeric-tower "0.0.4"]
                  ]
